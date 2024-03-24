@@ -7,12 +7,12 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { Product } from './product.model';
-import { ProductService } from './product.service';
+import { Product } from './products.model';
+import { ProductsService } from './products.service';
 
 @Controller('api/v1/products')
-export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+export class ProductsController {
+  constructor(private readonly productService: ProductsService) {}
 
   @Get()
   async getAll(): Promise<Product[]> {
