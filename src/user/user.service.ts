@@ -4,7 +4,6 @@ import { User } from './user.model';
 import * as bcrypt from 'bcrypt';
 import { UserResponseType } from 'src/types/user.type';
 import { CreateUserDto } from './dto/user.dto';
-import { validateOrReject } from 'class-validator';
 
 @Injectable()
 export class UserService {
@@ -24,9 +23,6 @@ export class UserService {
   }
 
   async create(user: CreateUserDto): Promise<UserResponseType> {
-    // Validate the user data with class-validator CreateUserDto
-    await validateOrReject(user);
-
     // Transactions help ensure that a series of operations are either all completed successfully or rolled back in case of any failure.
     return await this.prisma.$transaction(async (prismaTransaction) => {
       // Check if the user already exists by username or email
