@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common'
 import { UserService } from './user.service';
 import { User } from './user.model';
 import { UserResponseType } from 'src/types/user.type';
+import { CreateUserDto } from './dto/user.dto';
 
 @Controller('api/v1/users')
 export class UserController {
@@ -18,7 +19,7 @@ export class UserController {
   }
 
   @Post()
-  async create(@Body() user: User): Promise<UserResponseType> {
+  async create(@Body() user: CreateUserDto): Promise<UserResponseType> {
     return this.UserService.create(user);
   }
 
