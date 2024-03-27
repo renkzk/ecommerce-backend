@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './user.model';
 import { UserResponseType } from 'src/types/user.type';
 import { CreateUserDto } from './dto/user.dto';
+import { User } from '@prisma/client';
 
 @Controller('api/v1/users')
 export class UserController {
