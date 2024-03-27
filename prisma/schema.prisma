@@ -20,6 +20,9 @@ model Product {
   price Int
   rating Int
   image String
+  sale Boolean @default(false)
+  createdAt DateTime @default(now()) 
+  updatedAt DateTime @default(now()) @updatedAt 
 }
 
 model User {
@@ -27,4 +30,6 @@ model User {
   username String @unique
   email String @unique
   password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
