@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { UserResponseType } from 'src/types/user.type';
-import { CreateUserDto } from './dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
 import { User } from '@prisma/client';
 
 @Injectable()
@@ -46,23 +46,26 @@ export class UserService {
     });
   }
 
-  async update(id: number, user: User): Promise<UserResponseType> {
+  async update(id: number, user: UpdateUserDto): Promise<UserResponseType> {
+    // Check if the user exists
+    const existingUser = await this.prisma.user.findFirst({ where: { id } });
+    if (!existingUser) {
+      throw new NotFoundException('User not found');
+    }
+
     const updatedUser = await this.prisma.user.update({
       where: { id },
       data: user,
     });
-    return updatedUser;
+    return this.buildUserResponse(updatedUser);
   }
 
-  async delete(id: number): Promise<User> {
+  async delete(id: number): Promise<UserResponseType> {
     return this.prisma.user.delete({ where: { id } });
   }
 
   buildUserResponse(user: User): UserResponseType {
-    return {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    };
+    delete user.password;
+    return user;
   }
 }
