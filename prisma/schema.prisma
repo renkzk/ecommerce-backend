@@ -22,7 +22,7 @@ model Product {
   image String
   sale Boolean @default(false)
   createdAt DateTime @default(now()) 
-  updatedAt DateTime @default(now()) @updatedAt 
+  updatedAt DateTime @updatedAt 
 }
 
 model User {
@@ -31,5 +31,5 @@ model User {
   email String @unique
   password String
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
 }
