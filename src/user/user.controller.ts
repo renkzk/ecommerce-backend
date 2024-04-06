@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserResponseType } from 'src/types/user.type';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
@@ -13,22 +13,23 @@ export class UserController {
   }
 
   @Get(':id')
-  async get(@Param('id') id: string): Promise<UserResponseType> {
-    return this.UserService.get(Number(id));
+  async get(@Param('id', ParseIntPipe) id: number): Promise<UserResponseType> {
+    //ParseIntPipe automatically converts the incoming parameter to an integer type
+    return this.UserService.get(id);
   }
 
   @Post()
-  async create(@Body() user: CreateUserDto): Promise<UserResponseType> {
-    return this.UserService.create(user);
+  async create(@Body() body: CreateUserDto): Promise<UserResponseType> {
+    return this.UserService.create(body);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() user: UpdateUserDto): Promise<UserResponseType> {
-    return this.UserService.update(Number(id), user);
+  async update(@Param('id', ParseIntPipe) id: number, @Body() user: UpdateUserDto): Promise<UserResponseType> {
+    return this.UserService.update(id, user);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: string): Promise<UserResponseType> {
+  async delete(@Param('id', ParseIntPipe) id: number): Promise<UserResponseType> {
     return this.UserService.delete(Number(id));
   }
 }
