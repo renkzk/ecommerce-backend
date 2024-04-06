@@ -1,18 +1,28 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
+// This class is used to transform the user data in the response.
+// It excludes sensitive information like password from the response.
+// Must be used with the "plainToClass" function.
+// Example of use: "plainToClass(UserResponseEntity, user);"
+
 export class UserResponseEntity implements User {
-  id: number;
-  username: string;
-  email: string;
+  @ApiProperty()
+  readonly id: number;
+
+  @ApiProperty()
+  readonly username: string;
+
+  @ApiProperty()
+  readonly email: string;
 
   @Exclude()
-  password: string;
+  readonly password: string;
 
-  createdAt: Date;
-  updatedAt: Date;
+  @Exclude()
+  readonly createdAt: Date;
 
-  constructor(partial: Partial<UserResponseEntity>) {
-    Object.assign(this, partial);
-  }
+  @Exclude()
+  readonly updatedAt: Date;
 }
