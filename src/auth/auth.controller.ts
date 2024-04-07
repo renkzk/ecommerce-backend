@@ -8,6 +8,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponseEntity } from './entities/auth.entity';
 import { plainToClass } from 'class-transformer';
+import { UserResponseEntity } from 'src/user/entities/user.entity';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -29,7 +30,7 @@ export class AuthController {
     const token = await this.jwtService.sign(payload);
 
     const response = {
-      user: verifiedUser,
+      user: plainToClass(UserResponseEntity, verifiedUser),
       token,
     };
 
