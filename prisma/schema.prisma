@@ -18,8 +18,8 @@ model Product {
   name String
   description String
   price Int
-  rating Int
   image String
+  rating Float @default(0)
   sale Boolean @default(false)
   createdAt DateTime @default(now()) 
   updatedAt DateTime @updatedAt 
