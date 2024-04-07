@@ -1,21 +1,14 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { UserResponseType } from 'src/types/user.type';
-import { LoginDto } from './dto/auth.dto';
-import { UserService } from 'src/user/user.service';
 import { User } from '@prisma/client';
+import { LoginCredentialsDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
-  constructor(
-    private prisma: PrismaService,
-    private jwtService: JwtService,
-    private userService: UserService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
-  async verifyCredentials(loginCredentials: LoginDto): Promise<UserResponseType> {
+  async verifyCredentials(loginCredentials: LoginCredentialsDto): Promise<User> {
     let user: User;
     const { identifier, password } = loginCredentials;
 
@@ -43,16 +36,7 @@ export class AuthService {
     // Compare the provided password with the hashed password stored in the database using bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
-      return this.userService.buildUserResponse(user);
+      return user;
     } else throw new UnauthorizedException('Invalid Password');
-  }
-
-  async signUser(user: UserResponseType): Promise<string> {
-    const payload = { username: user.username, sub: user.id };
-    return this.jwtService.sign(payload);
-  }
-
-  async verifyToken(token: string): Promise<object> {
-    return this.jwtService.verify(token);
   }
 }

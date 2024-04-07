@@ -3,29 +3,46 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './auth.guard';
 import { UserService } from 'src/user/user.service';
 import { CreateUserDto } from 'src/user/dto/user.dto';
-import { LoginDto } from './dto/auth.dto';
-import { LoginResponse } from 'src/types/auth.type';
+import { LoginCredentialsDto } from './dto/auth.dto';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { JwtService } from '@nestjs/jwt';
+import { LoginResponseEntity } from './entities/auth.entity';
+import { plainToClass } from 'class-transformer';
 
-@Controller('api/v1/auth')
+@ApiTags('Authentication')
+@Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private userService: UserService,
+    private jwtService: JwtService,
   ) {}
 
   @Post('login')
-  async login(@Body() loginCredentials: LoginDto): Promise<LoginResponse> {
+  @ApiOperation({ summary: 'Login user' })
+  @ApiOkResponse({ type: LoginResponseEntity })
+  async login(@Body() body: LoginCredentialsDto): Promise<LoginResponseEntity> {
     // identifier can be email or username
-    const user = await this.authService.verifyCredentials(loginCredentials);
-    const token = await this.authService.signUser(user);
-    return { user, token };
+    const verifiedUser = await this.authService.verifyCredentials(body);
+
+    const payload = { username: verifiedUser.username, sub: verifiedUser.id };
+    const token = await this.jwtService.sign(payload);
+
+    const response = {
+      user: verifiedUser,
+      token,
+    };
+
+    return plainToClass(LoginResponseEntity, response);
   }
 
   @Post('register')
-  async register(@Body() user: CreateUserDto): Promise<string> {
-    const newUser = await this.userService.create(user);
-    const token = await this.authService.signUser(newUser);
-    return token;
+  @ApiOperation({ summary: 'Register user' })
+  @ApiOkResponse({ type: LoginResponseEntity })
+  async register(@Body() body: CreateUserDto): Promise<LoginResponseEntity> {
+    await this.userService.create(body);
+
+    return this.login({ identifier: body.email, password: body.password });
   }
 
   @UseGuards(JwtAuthGuard)
