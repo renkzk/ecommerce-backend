@@ -1,6 +1,6 @@
 import { PrismaService } from 'src/prisma/prisma.service';
-import { Product } from './products.model';
 import { Injectable } from '@nestjs/common';
+import { Prisma, Product } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
@@ -10,18 +10,18 @@ export class ProductsService {
     return this.prisma.product.findMany();
   }
 
-  async get(id: number): Promise<Product | null> {
+  async get(id: number): Promise<Product> {
     return this.prisma.product.findUnique({ where: { id } });
   }
 
-  async create(product: Product): Promise<Product> {
-    return this.prisma.product.create({ data: product });
+  async create(body: Prisma.ProductCreateInput): Promise<Product> {
+    return this.prisma.product.create({ data: body });
   }
 
-  async update(id: number, product: Product): Promise<Product> {
+  async update(id: number, body: Prisma.ProductUpdateInput): Promise<Product> {
     return this.prisma.product.update({
       where: { id },
-      data: product,
+      data: body,
     });
   }
 
