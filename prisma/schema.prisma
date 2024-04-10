@@ -13,23 +13,164 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Product {
-  id Int @id @default(autoincrement())
-  name String
-  description String
-  price Int
-  image String
-  rating Float @default(0)
-  sale Boolean @default(false)
-  createdAt DateTime @default(now()) 
-  updatedAt DateTime @updatedAt @default(now())
+// TODO: Add Cart, Wishlist, Coupon, Transaction models
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model User {
   id Int @id @default(autoincrement())
-  username String @unique
+  name String
+  surname String
   email String @unique
-  password String
+  phone String @unique
+  hashedPassword String
+  address String
+  city String
+  zip String
+  country String 
+
+  // User can have different Roles
+  role Role @default(USER)
+
+  // Relations
+  settings UserSettings?
+  // User can make many Orders
+  orders Order[]
+  // User can be attached to different Ratings he leaves on Products
+  reviews Review[] 
+
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // User can be updated
 }
+
+model UserSettings {
+  // Relations
+  // Belongs to a single User
+  userId Int @id @ignore
+  user User @relation(fields: [userId], references: [id])
+  // User can have different ShippingAddresses and a preferred address
+  // defaultShippingAddress ShippingAddress @relation("DefaultShippingAddress")
+  shippingAddresses ShippingAddress[]
+  // defaultPaymentOption
+  // paymentOptions
+}
+
+model ShippingAddress {
+  id Int @id @default(autoincrement())
+  address String
+  city String
+  zip String
+  coutry String
+
+  // Relations
+  // Belongs to a single User's UserSettings
+  userId Int
+  userSettings UserSettings @relation(fields: [userId], references: [userId])
+  // Can be found in many Orders
+  orders Order[] 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // ShippingAddress can be updated
+}
+
+model Category {
+  id Int @id @default(autoincrement())
+  name String
+  color String
+  icon String
+  banner String? //optional: Banner is an image that can be seen when visiting a Category
+
+  // Relations
+  // Self-referential relationship.
+  // Hierarchical structure where categories can have subcategories (i.e., nested categories).
+  // This means that a Category can have a parent Category, and multiple child Categories. 
+  parentCategoryId Int?
+  parentCategory Category? @relation("ChildCategories", fields: [parentCategoryId], references: [id])
+  childrenCategories Category[] @relation("ChildCategories") 
+  // A Category can have many products
+  products Product[] 
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // Category can be updated
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  description String
+  richDescription String
+  image String
+  images String[]
+  brand String
+  price Float
+  amountInStock Int
+  sale Boolean @default(false)
+
+  // Relations
+  // Product can belong to many categories
+  categories Category[] 
+  // Product can have many rating
+  ratings Review[] 
+  // Product can be an OrderItem inside different Orders
+  orderItem OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // Product can be updated
+}
+
+model Review {
+  id Int @id @default(autoincrement())
+  value Float
+  comment String
+
+  // Relations
+  // Review belongs to a single User
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  // Review belongs to a single Product
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // Review can be updated
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  totalPrice Float
+
+  // Relations
+  // Order is created by a User
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+  // Order can have many OrderItems
+  items OrderItem[]
+  // Order has a single ShippingAddress specified by the User during Purchase
+  shippingAddressId Int
+  shippingAddress ShippingAddress @relation(fields: [shippingAddressId], references: [id])
+  // Order has Transaction data
+  // TODO
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // Order can be updated
+}
+
+model OrderItem {
+  id Int @id @default(autoincrement())
+  quantity Int // amount of this Product
+
+  // Relations
+  // OrderItem belongs to one Order
+  orderId Int
+  order Order @relation(fields: [orderId], references: [id])
+  // OrderItem contains the Product data
+  productId Int
+  product Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt // OrderItem can be updated (quantity)
+}
+
