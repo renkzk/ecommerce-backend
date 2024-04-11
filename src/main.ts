@@ -4,12 +4,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   // ValidationPipe ensures that all endpoints are protected from receiving incorrect data
   // This enables us to use DTO declarations to validate incoming data
   // For more information, see https://docs.nestjs.com/techniques/validation
   app.useGlobalPipes(new ValidationPipe());
+
+  // Set global prefix
+  app.setGlobalPrefix('api');
 
   // Swagger configuration
   const config = new DocumentBuilder()
