@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './auth.guard';
 import { UserService } from 'src/user/user.service';
@@ -9,6 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginResponseEntity } from './entities/auth.entity';
 import { plainToClass } from 'class-transformer';
 import { UserResponseEntity } from 'src/user/entities/user.entity';
+import { Role } from '@prisma/client';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -35,6 +36,20 @@ export class AuthController {
     };
 
     return plainToClass(LoginResponseEntity, response);
+  }
+
+  @Post('login/admin')
+  @ApiOperation({ summary: 'Login user if admin' })
+  @ApiOkResponse({ type: LoginResponseEntity })
+  async loginAdmin(@Body() body: LoginCredentialsDto): Promise<LoginResponseEntity> {
+    // identifier can be email or username
+    const verifiedUser = await this.authService.verifyCredentials(body);
+
+    if (verifiedUser.role !== Role.ADMIN) {
+      throw new UnauthorizedException();
+    }
+
+    return this.login({ identifier: body.identifier, password: body.password });
   }
 
   @Post('register')
