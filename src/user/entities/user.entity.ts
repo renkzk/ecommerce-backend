@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { User } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 
 // This class is used to transform the user data in the response.
@@ -16,6 +16,9 @@ export class UserResponseEntity implements User {
 
   @ApiProperty()
   readonly email: string;
+
+  @ApiProperty()
+  readonly role: Role;
 
   @Exclude()
   readonly password: string;
