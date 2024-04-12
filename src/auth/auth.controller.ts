@@ -10,6 +10,7 @@ import { LoginResponseEntity } from './entities/auth.entity';
 import { plainToClass } from 'class-transformer';
 import { UserResponseEntity } from 'src/user/entities/user.entity';
 import { Role } from '@prisma/client';
+import { ErrorCode } from 'src/shared/enums/error-code.enum';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -46,7 +47,7 @@ export class AuthController {
     const verifiedUser = await this.authService.verifyCredentials(body);
 
     if (verifiedUser.role !== Role.ADMIN) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(ErrorCode.Unauthorized);
     }
 
     return this.login({ identifier: body.identifier, password: body.password });

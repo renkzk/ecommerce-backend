@@ -2,6 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { Prisma, User } from '@prisma/client';
+import { ErrorCode } from 'src/shared/enums/error-code.enum';
 
 @Injectable()
 export class UserService {
@@ -15,7 +16,7 @@ export class UserService {
   async get(id: number): Promise<User> {
     const foundUser = await this.prisma.user.findUnique({ where: { id } });
     if (!foundUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(ErrorCode.UserNotFound);
     }
     return foundUser;
   }
@@ -30,7 +31,7 @@ export class UserService {
         },
       });
       if (foundUser) {
-        throw new ConflictException('Username or email already exists');
+        throw new ConflictException(ErrorCode.UserAlreadyExists);
       }
       // Hash the password before saving it to the database
       const hashedPassword = await bcrypt.hash(body.password, 10);
@@ -48,7 +49,7 @@ export class UserService {
     // Check if the user exists
     const foundUser = await this.prisma.user.findFirst({ where: { id } });
     if (!foundUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(ErrorCode.UserNotFound);
     }
 
     const updatedUser = await this.prisma.user.update({
@@ -61,7 +62,7 @@ export class UserService {
   async delete(id: number): Promise<User> {
     const foundUser = await this.prisma.user.delete({ where: { id } });
     if (!foundUser) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(ErrorCode.UserNotFound);
     }
     return foundUser;
   }

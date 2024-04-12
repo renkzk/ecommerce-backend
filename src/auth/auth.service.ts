@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '@prisma/client';
 import { LoginCredentialsDto } from './dto/auth.dto';
+import { ErrorCode } from 'src/shared/enums/error-code.enum';
 
 @Injectable()
 export class AuthService {
@@ -30,13 +31,13 @@ export class AuthService {
     }
 
     if (!user) {
-      throw new NotFoundException('User not found');
+      throw new NotFoundException(ErrorCode.UserNotFound);
     }
 
     // Compare the provided password with the hashed password stored in the database using bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
       return user;
-    } else throw new UnauthorizedException('Invalid Password');
+    } else throw new UnauthorizedException(ErrorCode.InvalidCredentials);
   }
 }
