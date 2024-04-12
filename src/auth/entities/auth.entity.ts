@@ -6,5 +6,5 @@ export class LoginResponseEntity {
   readonly user: UserResponseEntity;
 
   @ApiProperty()
-  readonly token: string;
+  readonly jwt: string;
 }

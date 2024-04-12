@@ -29,11 +29,11 @@ export class AuthController {
     const verifiedUser = await this.authService.verifyCredentials(body);
 
     const payload = { username: verifiedUser.username, sub: verifiedUser.id };
-    const token = await this.jwtService.sign(payload);
+    const jwt = await this.jwtService.sign(payload);
 
-    const response = {
+    const response: LoginResponseEntity = {
       user: plainToClass(UserResponseEntity, verifiedUser),
-      token,
+      jwt,
     };
 
     return plainToClass(LoginResponseEntity, response);
