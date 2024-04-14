@@ -36,8 +36,10 @@ export class AuthService {
 
     // Compare the provided password with the hashed password stored in the database using bcrypt
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (isPasswordValid) {
-      return user;
-    } else throw new UnauthorizedException(ErrorCode.InvalidCredentials);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException(ErrorCode.IncorrectPassword);
+    }
+
+    return user;
   }
 }

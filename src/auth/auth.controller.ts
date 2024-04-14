@@ -25,7 +25,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Login user' })
   @ApiOkResponse({ type: LoginResponseEntity })
   async login(@Body() body: LoginCredentialsDto): Promise<LoginResponseEntity> {
-    // identifier can be email or username
     const verifiedUser = await this.authService.verifyCredentials(body);
 
     const payload = { username: verifiedUser.username, sub: verifiedUser.id };
@@ -43,7 +42,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Login user if admin' })
   @ApiOkResponse({ type: LoginResponseEntity })
   async loginAdmin(@Body() body: LoginCredentialsDto): Promise<LoginResponseEntity> {
-    // identifier can be email or username
     const verifiedUser = await this.authService.verifyCredentials(body);
 
     if (verifiedUser.role !== Role.ADMIN) {
